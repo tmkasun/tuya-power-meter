@@ -63,6 +63,7 @@ export async function generateToken() {
   const config = getConfigs();
   const currentToken = await getToken();
   const timeNow = Date.now();
+  // The OAuth token is currently valid for two hours for security concerns
   if (currentToken && (currentToken.storedAt + (currentToken.expire_time * 1000) < timeNow)) {
     logger.info('Generating new Access token from API')
 

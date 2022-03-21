@@ -15,6 +15,7 @@
     "pino": "^7.9.1",
     "pino-pretty": "^7.5.4",
     "qs": "^6.10.3",
+    "sqlite3": "^5.0.2",
     "tuyapi": "github:codetheweb/tuyapi"
   },
   "devDependencies": {

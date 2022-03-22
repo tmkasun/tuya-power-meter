@@ -17,7 +17,15 @@ async function main() {
   let lastP, lastV, lastC, lastChange;
   lastChange = Date.now();
   while (true) {
-    const { result, tid } = await getPowerUsage(config.deviceId);
+    let data;
+    try {
+      data = await getPowerUsage(config.deviceId);
+    } catch (error) {
+      logger.error(error); // expect token error
+      await generateToken();
+      continue;
+    }
+    const { result, tid } = data;
     const parameters: { [key: string]: any } = {};
     for (const parameter of result) {
       parameters[parameter.code] = parameter.value;
@@ -26,7 +34,7 @@ async function main() {
     const power = parameters.cur_power / 10;
     const voltage = parameters.cur_voltage / 10;
     const current = parameters.cur_current / 1000;
-    if (true || lastP !== power || lastV !== voltage || lastC !== current) {
+    if (lastP !== power || lastV !== voltage || lastC !== current) {
       logger.warn(`Changed in ${(Date.now() - lastChange) / 1000}s`);
 
       lastChange = Date.now();

@@ -6,7 +6,9 @@
   "scripts": {
     "test": "ts-node index.ts",
     "build": "tsc --build",
-    "clean": "tsc --build --clean"
+    "clean": "tsc --build --clean",
+    "postbuild": "cp package.json dist/package.json && cp package-lock.json dist/package-lock.json && cd dist && npm ci --production",
+    "deploy": "rm -R dist/node_modules/ ; tar -cvf tmp/dist.tar.gz dist ; scp -v -r tmp/dist.tar.gz ubuntu@o.knnect.com:/home/ubuntu/projects/tuyaMeter/"
   },
   "author": "",
   "license": "ISC",

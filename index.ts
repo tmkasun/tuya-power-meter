@@ -5,22 +5,46 @@ import { generateToken, getToken, encryptStr } from "./utils/token_pickle";
 import { getConfigs } from "./utils/config_manager";
 import { httpClient } from "./utils/http_client";
 import logger from "./utils/logger";
+import { createTable, insert, openDB } from "./utils/database";
 
 const config = getConfigs();
 
 async function main() {
   logger.info("Starting power meter tracker");
   await generateToken();
+  await openDB();
+  await createTable();
+  let lastP, lastV, lastC, lastChange;
+  lastChange = Date.now();
   while (true) {
-    const data = await getPowerUsage(config.deviceId);
+    const { result, tid } = await getPowerUsage(config.deviceId);
     const parameters: { [key: string]: any } = {};
-    for (const parameter of data.result) {
+    for (const parameter of result) {
       parameters[parameter.code] = parameter.value;
     }
-    logger.info(`Switch On/Off: ${parameters.switch_1 ? "on" : "off"} `);
-    logger.info(`Current Power: ${parameters.cur_power / 10} `);
-    logger.info(`Current Voltage: ${parameters.cur_voltage / 10} `);
-    logger.info(`Current Current: ${parameters.cur_current / 1000} `);
+    const isOn = parameters.switch_1 ? 1 : 0;
+    const power = parameters.cur_power / 10;
+    const voltage = parameters.cur_voltage / 10;
+    const current = parameters.cur_current / 1000;
+    if (true || lastP !== power || lastV !== voltage || lastC !== current) {
+      logger.warn(`Changed in ${(Date.now() - lastChange) / 1000}s`);
+
+      lastChange = Date.now();
+      lastC = current;
+      lastP = power;
+      lastV = voltage;
+      try {
+        await insert([tid, isOn, power, voltage, current]);
+      } catch (error) {
+        logger.error(error);
+      }
+
+      logger.info(`Switch On/Off: ${isOn} `);
+      logger.info(`Current Power: ${power} `);
+      logger.info(`Current Voltage: ${voltage} `);
+      logger.info(`Current Current: ${current} `);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 }

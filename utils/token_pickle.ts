@@ -59,13 +59,17 @@ export async function encryptStr(str: string, secret: string): Promise<string> {
 /**
  * fetch highway login token
  */
-export async function generateToken() {
+export async function generateToken(forceRefresh = false) {
   const config = getConfigs();
   const currentToken = await getToken();
   const timeNow = Date.now();
   // The OAuth token is currently valid for two hours for security concerns
-  if (currentToken && (currentToken.storedAt + (currentToken.expire_time * 1000) < timeNow)) {
-    logger.info('Generating new Access token from API')
+  if (
+    forceRefresh ||
+    (currentToken &&
+      currentToken.storedAt + currentToken.expire_time * 1000 < timeNow)
+  ) {
+    logger.info("Generating new Access token from API");
 
     const method = "GET";
     const timestamp = Date.now().toString();
@@ -90,7 +94,7 @@ export async function generateToken() {
     await storeToken(login.result);
     return login.result;
   } else {
-    logger.info('Using cached Access token')
+    logger.info("Using cached Access token");
     return currentToken;
   }
 }

@@ -9,6 +9,9 @@ import { createTable, insert, openDB } from "./utils/database";
 
 const config = getConfigs();
 
+function randomString(length: number = 2) {
+  return (Math.random() + 1).toString(36).substring(length);
+}
 async function main() {
   logger.info("Starting power meter tracker");
   await generateToken();
@@ -22,7 +25,19 @@ async function main() {
       data = await getPowerUsage(config.deviceId);
     } catch (error) {
       logger.error(error); // expect token error
-      await generateToken();
+      const {code}  = error;
+      if(code === "ECONNABORTED") {
+        logger.error("Device is offline or no power to home");
+        try {
+          await insert([randomString(), 0, 0, 0, 0]);
+        } catch (error) {
+          logger.error(error);
+          logger.error("insert data failed while adding no power data");
+        }
+      } else if(code === "TOKENEXPIRED") {
+        logger.warn("Detect expired token, Try to refresh it now");
+        await generateToken(true);
+      }
       continue;
     }
     const { result, tid } = data;
@@ -53,6 +68,7 @@ async function main() {
       logger.info(`Current Current: ${current} `);
     }
 
+    // Sleep for 2 seconds
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 }
@@ -102,7 +118,10 @@ async function getPowerUsage(deviceId: string) {
     url: reqHeaders.path,
   });
   if (!data || !data.success) {
-    throw Error(`request api failed: ${data.msg}`);
+    if(data.code === 1010) {
+      throw { code: "TOKENEXPIRED" };
+    }
+    throw new Error(`request api failed: ${data.msg}`);
   }
   return data;
 }

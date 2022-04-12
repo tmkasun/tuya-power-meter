@@ -7,6 +7,12 @@ rm -R dist/node_modules/
 echo "#### - Coping package*.json to dist to be run in remote node ..."
 
 cp package*.json dist/
+
+
+echo "#### - Coping run.sh..."
+
+cp run.sh dist/
+
 echo "#### - Creating tmp directory in dist..."
 
 mkdir -p dist/tmp/

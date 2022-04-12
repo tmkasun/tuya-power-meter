@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import { useEnergyData } from "./data/energy";
 import LineChart from "./components/LineChart";
 import { EChartsOption } from "echarts";
 import EnergyDatePicker from "./components/DatePicker";
 import { CircularProgress, Box, Alert, AlertTitle } from "@mui/material";
+import Footer from "./components/Footer";
+
+type WhileLoadingProps = {
+  isLoading: boolean;
+};
+const WhileLoading: React.FC<WhileLoadingProps> = ({ isLoading, children }) => {
+  return <>{isLoading ? <CircularProgress /> : children}</>;
+};
 
 function App() {
   const { data, loading: isDataLoading, error, mutate } = useEnergyData();
@@ -93,9 +100,10 @@ function App() {
 
   return (
     <div className="App">
-      <Box mt={5} display="flex" flexDirection="column">
+      <Box mt={5} display="flex" flexGrow={1} flexDirection="column">
         <Box display="flex" flexDirection="row" justifyContent="center">
           <EnergyDatePicker
+            mr={2}
             value={fromDate}
             setValue={setFromDate}
             label="from"
@@ -103,22 +111,24 @@ function App() {
           <EnergyDatePicker value={toDate} setValue={setToDate} label="to" />
         </Box>
         <Box mt={5} display="flex" justifyContent="center" alignItems="center">
-          {isDataLoading && <CircularProgress />}
-          {options && <LineChart id="foo" options={options} />}
-          {error && (
-            <Alert sx={{ width: 0.8 }} severity="error">
-              <AlertTitle
-                sx={{
-                  textAlign: "left",
-                }}
-              >
-                {errorName}
-              </AlertTitle>
-              {errorMessage}
-            </Alert>
-          )}
+          <WhileLoading isLoading={isDataLoading}>
+            {options && <LineChart id="foo" options={options} />}
+            {error && (
+              <Alert sx={{ width: 0.8 }} severity="error">
+                <AlertTitle
+                  sx={{
+                    textAlign: "left",
+                  }}
+                >
+                  {errorName}
+                </AlertTitle>
+                {errorMessage}
+              </Alert>
+            )}
+          </WhileLoading>
         </Box>
       </Box>
+      <Footer />
     </div>
   );
 }

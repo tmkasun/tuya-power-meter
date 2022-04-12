@@ -2,15 +2,16 @@ import logger from "./logger";
 
 // import * as fs from "fs";
 import * as path from "path";
+import Configs from "./configs";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const sqlite3 = require("sqlite3").verbose();
 
 const DEFAULT_TABLE = "KNNECT_DATA";
 
-const DB_FILE = process.env.E_APP_ROOT
-  ? path.join(process.env.E_APP_ROOT, "tmp", "knnectPower.db")
+const DB_FILE = Configs.APP_ROOT
+  ? path.join(Configs.APP_ROOT, "tmp", "knnectPower.db")
   : path.join(__dirname, "..", "..", "tmp", "knnectPower.db");
-logger.info(`Using database file (if "E_APP_ROOT"): ${DB_FILE}`);
+logger.info(`Using database file (if "APP_ROOT"): ${DB_FILE}`);
 const { getDB, setDB } = (() => {
   let db: any;
   return {

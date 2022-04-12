@@ -8,13 +8,14 @@ type EnergyRecord = {
   voltage: number;
 };
 
-const apiEndpoint = Configs.API_ORIGIN + "/energy";
+const apiEndpoint = Configs.API_BASE_PATH + "/energy";
 
 export const useEnergyData = () => {
   const [data, setData] = useState<EnergyRecord[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown | null>(null);
   const mutate = async (from: any, to: any) => {
+    setLoading(true);
     let response;
     const fromDate = from.format("YYYY-MM-DD");
     const toDate = to.format("YYYY-MM-DD");
@@ -25,13 +26,13 @@ export const useEnergyData = () => {
       if (!response.ok) {
         throw new Error("Network response was not OK");
       }
+      const data = await response?.json();
+      setData(data);
     } catch (error) {
       setError(error);
     } finally {
       setLoading(false);
     }
-    const data = await response?.json();
-    setData(data);
   };
 
   useEffect(() => {
@@ -57,14 +58,17 @@ export const useEnergyData = () => {
           errorBody = await response.text();
           try {
             const parsedJson = JSON.parse(errorBody);
-            if (parsedJson.message?.toLowerCase() !== errorStatusText.toLowerCase()) {
+            if (
+              parsedJson.message?.toLowerCase() !==
+              errorStatusText.toLowerCase()
+            ) {
               errorMessage += ` ${parsedJson.message} |`;
             }
           } catch (error) {
             console.error("Error while parsing error body", error);
           }
           const handledError = new Error();
-          if(errorMessage.trim().endsWith('|')) {
+          if (errorMessage.trim().endsWith("|")) {
             errorMessage = errorMessage.slice(0, -1).trim();
           }
           handledError.message = errorMessage;

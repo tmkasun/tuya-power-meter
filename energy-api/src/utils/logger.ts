@@ -1,8 +1,9 @@
 import * as pinoms from 'pino-multi-stream';
 import * as path from 'path';
 import * as fs from 'fs';
+import Configs from './configs';
 
-const LOG_FILE = process.env.E_APP_ROOT ? path.join(process.env.E_APP_ROOT, "tmp", "knnect.log") : path.join(__dirname, '..', '..', 'tmp', 'knnect.log');
+const LOG_FILE = Configs.APP_ROOT ? path.join(Configs.APP_ROOT, "tmp", "knnect.log") : path.join(__dirname, '..', '..', 'tmp', 'knnect.log');
 
 const prettyStream = pinoms.prettyStream();
 const streams = [

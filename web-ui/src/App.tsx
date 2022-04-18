@@ -6,6 +6,9 @@ import { EChartsOption } from "echarts";
 import EnergyDatePicker from "./components/DatePicker";
 import { CircularProgress, Box, Alert, AlertTitle } from "@mui/material";
 import Footer from "./components/Footer";
+import EnergyParameters, {
+  EnergyParameterTypes,
+} from "./components/EnergyParameters";
 
 type WhileLoadingProps = {
   isLoading: boolean;
@@ -19,11 +22,24 @@ function App() {
   const [fromDate, setFromDate] = React.useState(null);
   const [toDate, setToDate] = React.useState(null);
 
+  const [currentParameterType, setCurrentParameterType] = React.useState(EnergyParameterTypes.Power);
+
+  const handleParameterTypeChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newAlignment: string
+  ) => {
+    setCurrentParameterType(newAlignment as EnergyParameterTypes);
+  };
+
+
   useEffect(() => {
     if (fromDate && toDate) {
-      mutate(fromDate, toDate);
+      mutate(currentParameterType, fromDate, toDate);
+    } else {
+      mutate(currentParameterType);
     }
-  }, [fromDate, toDate]);
+  }, [fromDate, toDate, currentParameterType]);
+
   const [options, setOptions] = useState<EChartsOption | null>(null);
   useEffect(() => {
     if (!data) {
@@ -33,8 +49,8 @@ function App() {
     const xAxisTime = [];
     const yAxisPower = [];
     for (const record of data) {
-      xAxisTime.push(record.time);
-      yAxisPower.push(record.power);
+      xAxisTime.push(new Date(record.time + "+00:00").toLocaleTimeString());
+      yAxisPower.push(record[currentParameterType] as number / 10);
     }
     // use LineChart default ops
     let opts = {
@@ -109,6 +125,15 @@ function App() {
             label="from"
           />
           <EnergyDatePicker value={toDate} setValue={setToDate} label="to" />
+          <EnergyParameters
+            parameters={[
+              EnergyParameterTypes.Power,
+              EnergyParameterTypes.Voltage,
+              EnergyParameterTypes.TotalEnergy,
+            ]}
+            selected={currentParameterType}
+            onChange={handleParameterTypeChange}
+          />
         </Box>
         <Box mt={5} display="flex" justifyContent="center" alignItems="center">
           <WhileLoading isLoading={isDataLoading}>

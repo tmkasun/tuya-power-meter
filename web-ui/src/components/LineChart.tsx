@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import * as echarts from "echarts/core";
 import type { EChartsOption, ECharts, SetOptionOpts } from "echarts";
 
@@ -82,20 +82,24 @@ type EnergyLineChartProps = {
 };
 const EnergyLineChart = (props: EnergyLineChartProps) => {
   const chartRefInst = useRef<HTMLDivElement | null>(null);
+  const chartInst = useRef<any>(null);
   const { id, options } = props;
   useEffect(() => {
-    if (chartRefInst.current !== null) {
+    if (chartInst.current !== null && chartRefInst.current !== null) {
+      // tmkasun could directly use "chartInst.current.setOption(options)"
       const chart = echarts.getInstanceByDom(chartRefInst.current);
       chart?.setOption(options, true);
     }
   }, [options]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (chartRefInst.current !== null) {
       const lineChart = echarts.init(chartRefInst.current);
-      lineChart.setOption(options, true);
+      // const lineChart = echarts.getInstanceByDom(chartRefInst.current);
+      chartInst.current = lineChart;
+      lineChart?.setOption(options, true);
     }
-  }, [options]);
+  }, []);
   return (
     <div id={id} ref={chartRefInst} style={{ width: "100%", height: "80vh" }} />
   );

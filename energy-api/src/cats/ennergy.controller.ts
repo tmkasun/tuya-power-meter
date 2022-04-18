@@ -21,16 +21,16 @@ export class EnergyController {
     return this.iotService.create(createCatDto);
   }
 
-  @Get(':id')
-  @ApiResponse({
-    status: 200,
-    description: 'The found record',
-    type: Cat,
-  })
-  findOne(@Param('id') id: string): Cat {
-    console.log('fffoooooooooooooooooooooooooooooooooooooobbb');
-    return this.iotService.findOne(+id);
-  }
+  // @Get(':id')
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'The found record',
+  //   type: Cat,
+  // })
+  // findOne(@Param('id') id: string): Cat {
+  //   console.log('fffoooooooooooooooooooooooooooooooooooooobbb');
+  //   return this.iotService.findOne(+id);
+  // }
 
   @Get('')
   @ApiResponse({
@@ -47,5 +47,40 @@ export class EnergyController {
     @Query('order') order: string,
   ): Promise<any> {
     return await this.iotService.getAll(offset, limit, orderBy, order, start, end);
+  }
+
+
+  @Get('/voltage')
+  @ApiResponse({
+    status: 200,
+    description: 'The found record',
+    type: Cat,
+  })
+  async getVoltage(
+    @Query('start') start: string,
+    @Query('end') end: string,
+    @Query('offset') offset: number,
+    @Query('limit') limit: number,
+    @Query('orderBy') orderBy: string,
+    @Query('order') order: string,
+  ): Promise<any> {
+    return await this.iotService.getAllVoltage(offset, limit, orderBy, order, start, end);
+  }
+
+  @Get('/total')
+  @ApiResponse({
+    status: 200,
+    description: 'The found record',
+    type: Cat,
+  })
+  async getTotalEnergy(
+    @Query('start') start: string,
+    @Query('end') end: string,
+    @Query('offset') offset: number,
+    @Query('limit') limit: number,
+    @Query('orderBy') orderBy: string,
+    @Query('order') order: string,
+  ): Promise<any> {
+    return await this.iotService.getAllTotalPower(offset, limit, orderBy, order, start, end);
   }
 }

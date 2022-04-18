@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "ts-node index.ts",
+    "debug": "ts-node index.ts",
     "build": "tsc --build",
     "clean": "tsc --build --clean",
     "postbuild": "cp package.json dist/package.json && cp package-lock.json dist/package-lock.json && cd dist && npm ci --production",

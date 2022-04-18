@@ -6,7 +6,7 @@ import Configs from "./configs";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const sqlite3 = require("sqlite3").verbose();
 
-const DEFAULT_TABLE = "KNNECT_DATA";
+const DEFAULT_TABLE = "KNNECT_POWER";
 
 const DB_FILE = Configs.APP_ROOT
   ? path.join(Configs.APP_ROOT, "tmp", "knnectPower.db")
@@ -38,21 +38,21 @@ export async function search(
   offset = 0,
   limit = 50,
   orderBy = "time",
-  tableName: string = DEFAULT_TABLE,
-  order = "DESC"
+  order = "DESC",
+  tableType
 ) {
   const currentDB = await getDB();
   return new Promise((resolve, reject) => {
-    const sql = `SELECT *
+    const sql = `SELECT datetime(time, 'localtime') as time, *
                  FROM
-                  ${tableName}
+                  ${tableType}
                  ORDER BY ${orderBy} ${order}
                  LIMIT ${limit} OFFSET ${offset}`;
     currentDB.all(sql, [], function (error, rows) {
       if (error) {
         reject(error);
       } else {
-        logger.info(`Fetched ${rows.length} rows from ${tableName}`);
+        logger.info(`Fetched ${rows.length} rows from ${tableType}`);
         resolve(rows);
       }
     });
@@ -63,9 +63,10 @@ export async function searchByMonthRange(
   offset = 0,
   limit = 50,
   orderBy = "time",
-  order = "DESC",
+  order = "ASC",
   start,
-  end
+  end,
+  tableType
 ) {
   if (!end) {
     end = new Date().toISOString().split("T")[0];
@@ -73,9 +74,9 @@ export async function searchByMonthRange(
   // https://www.sqlite.org/lang_datefunc.html
   const currentDB = await getDB();
   return new Promise((resolve, reject) => {
-    const sql = `SELECT datetime(time, 'localtime') as time, power
+    const sql = `SELECT datetime(time, 'localtime') as time, *
                  FROM
-                  ${DEFAULT_TABLE}
+                  ${tableType}
                   WHERE time BETWEEN "${start}" AND "${end}"
                  ORDER BY ${orderBy} ${order}
                  LIMIT ${limit} OFFSET ${offset}`;

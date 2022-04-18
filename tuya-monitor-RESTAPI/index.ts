@@ -79,7 +79,7 @@ async function main() {
 async function getDeviceInfo(deviceId: string) {
   const query = {};
   const method = "POST";
-  const url = `/v1.0/devices/${deviceId}/commands`;
+  const url = `/v2.0/devices/${deviceId}/commands`;
   const reqHeaders: { [k: string]: string } = await getRequestSign(
     url,
     method,
@@ -102,7 +102,7 @@ async function getDeviceInfo(deviceId: string) {
 async function getPowerUsage(deviceId: string) {
   const query = {};
   const method = "GET";
-  const url = `/v1.0/iot-03/devices/${deviceId}/status`;
+  const url = `/v1.0/devices/${deviceId}/status`;
   const reqHeaders: { [k: string]: string } = await getRequestSign(
     url,
     method,
@@ -165,6 +165,8 @@ async function getRequestSign(
     sign: await encryptStr(signStr, config.secretKey),
     sign_method: "HMAC-SHA256",
     access_token: token,
+    'no-cache': '1',
+    'no-store': '1',
   };
 }
 

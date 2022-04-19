@@ -22,7 +22,9 @@ function App() {
   const [fromDate, setFromDate] = React.useState(null);
   const [toDate, setToDate] = React.useState(null);
 
-  const [currentParameterType, setCurrentParameterType] = React.useState(EnergyParameterTypes.Power);
+  const [currentParameterType, setCurrentParameterType] = React.useState(
+    EnergyParameterTypes.Power
+  );
 
   const handleParameterTypeChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -30,7 +32,6 @@ function App() {
   ) => {
     setCurrentParameterType(newAlignment as EnergyParameterTypes);
   };
-
 
   useEffect(() => {
     if (fromDate && toDate) {
@@ -48,9 +49,17 @@ function App() {
 
     const xAxisTime = [];
     const yAxisPower = [];
+    const firstRecord = data[0][currentParameterType] as number;
     for (const record of data) {
       xAxisTime.push(new Date(record.time + "+00:00").toLocaleTimeString());
-      yAxisPower.push(record[currentParameterType] as number / 10);
+      if (currentParameterType === EnergyParameterTypes.TotalEnergy) {
+        // to get relative total energy change
+        yAxisPower.push(
+          ((record[currentParameterType]) as number - firstRecord) / 100
+        );
+      } else {
+        yAxisPower.push((record[currentParameterType] as number) / 10);
+      }
     }
     // use LineChart default ops
     let opts = {

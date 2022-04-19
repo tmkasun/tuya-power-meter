@@ -91,7 +91,7 @@ export const useEnergyData = () => {
     }
     if (!response?.bodyUsed) {
       const data = await response?.json();
-      setData(data.reverse());
+      setData(data);
     }
   };
 
